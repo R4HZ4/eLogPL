@@ -32,6 +32,7 @@ import type {
   UserRole,
   VerificationStatus,
 } from './types/training';
+import { buildStaticExportCsv } from './utils/staticFallbackApi';
 import { computeStaffCompliance, stripNoKp } from './utils/trainingRules';
 
 type AppView =
@@ -282,13 +283,21 @@ function AuthenticatedWorkspace() {
 
   const handleExportNormalized = async () => {
     const activeToken = token ?? window.localStorage.getItem('motac_logbook_token_v1');
-    const res = await fetch(`/api/reports/export-normalized?tahun=${tahun}`, {
-      headers: activeToken ? { Authorization: `Bearer ${activeToken}` } : {},
-    });
-    if (!res.ok) {
-      throw new Error('Gagal mengeksport laporan ternormal.');
+    let blob: Blob | null = null;
+    if (!activeToken?.startsWith('static.')) {
+      const res = await fetch(`/api/reports/export-normalized?tahun=${tahun}`, {
+        headers: activeToken ? { Authorization: `Bearer ${activeToken}` } : {},
+      }).catch(() => null);
+      if (res && res.ok && (res.headers.get('content-type') ?? '').includes('text/csv')) {
+        blob = await res.blob();
+      } else if (res && !res.ok && (res.headers.get('content-type') ?? '').includes('application/json')) {
+        throw new Error('Gagal mengeksport laporan ternormal.');
+      }
     }
-    const blob = await res.blob();
+    if (!blob) {
+      const csvText = await buildStaticExportCsv(tahun);
+      blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

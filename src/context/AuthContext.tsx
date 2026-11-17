@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { StaffAccount } from '../types/training';
+import { handleStaticApiRequest } from '../utils/staticFallbackApi';
 
 const TOKEN_STORAGE_KEY = 'motac_logbook_token_v1';
 
@@ -14,6 +15,11 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function isJsonResponse(res: Response): boolean {
+  const ct = res.headers.get('content-type') ?? '';
+  return ct.includes('application/json');
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
@@ -41,25 +47,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const apiFetch = useCallback(
     async <T,>(url: string, init: RequestInit = {}): Promise<T> => {
+      const activeToken = token ?? window.localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (activeToken?.startsWith('static.')) {
+        return handleStaticApiRequest<T>(url, init, activeToken);
+      }
+
       const headers = new Headers(init.headers);
       if (!headers.has('Content-Type') && init.body) {
         headers.set('Content-Type', 'application/json');
       }
-      const activeToken = token ?? window.localStorage.getItem(TOKEN_STORAGE_KEY);
       if (activeToken) {
         headers.set('Authorization', `Bearer ${activeToken}`);
       }
 
-      const response = await fetch(url, { ...init, headers });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(
-          typeof data?.error === 'string'
-            ? data.error
-            : 'Permintaan pelayan gagal diproses.'
-        );
+      try {
+        const response = await fetch(url, { ...init, headers });
+        if (!isJsonResponse(response)) {
+          return handleStaticApiRequest<T>(url, init, activeToken);
+        }
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(
+            typeof data?.error === 'string'
+              ? data.error
+              : 'Permintaan pelayan gagal diproses.'
+          );
+        }
+        return data as T;
+      } catch (err) {
+        if (err instanceof TypeError) {
+          return handleStaticApiRequest<T>(url, init, activeToken);
+        }
+        throw err;
       }
-      return data as T;
     },
     [token]
   );
@@ -69,10 +89,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!activeToken) {
       return;
     }
+    if (activeToken.startsWith('static.')) {
+      try {
+        const data = await handleStaticApiRequest<{ user: StaffAccount }>(
+          '/api/auth/me',
+          {},
+          activeToken
+        );
+        setUser(data.user);
+      } catch {
+        persistToken(null);
+        setUser(null);
+      }
+      return;
+    }
+
     try {
       const res = await fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${activeToken}` },
       });
+      if (!isJsonResponse(res)) {
+        const data = await handleStaticApiRequest<{ user: StaffAccount }>(
+          '/api/auth/me',
+          {},
+          activeToken
+        );
+        setUser(data.user);
+        return;
+      }
       if (!res.ok) {
         persistToken(null);
         setUser(null);
@@ -101,17 +145,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (noKp: string, password: string, roleMode: 'staff' | 'admin' = 'staff') => {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ noKp, password, roleMode }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data?.error || 'Log masuk gagal.');
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ noKp, password, roleMode }),
+        });
+        if (!isJsonResponse(res)) {
+          const data = await handleStaticApiRequest<{ token: string; user: StaffAccount }>(
+            '/api/auth/login',
+            {
+              method: 'POST',
+              body: JSON.stringify({ noKp, password, roleMode }),
+            }
+          );
+          persistToken(data.token);
+          setUser(data.user);
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data?.error || 'Log masuk gagal.');
+        }
+        persistToken(data.token);
+        setUser(data.user);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          const data = await handleStaticApiRequest<{ token: string; user: StaffAccount }>(
+            '/api/auth/login',
+            {
+              method: 'POST',
+              body: JSON.stringify({ noKp, password, roleMode }),
+            }
+          );
+          persistToken(data.token);
+          setUser(data.user);
+          return;
+        }
+        throw err;
       }
-      persistToken(data.token);
-      setUser(data.user);
     },
     [persistToken]
   );
