@@ -302,7 +302,7 @@ export function PlbDirectoryView({
     setEditGender(staff.gender ?? '');
     setEditBulan(staff.bulanBerkhidmat);
     setEditSasaran(staff.sasaranTahun ?? 4);
-    setEditPeranan(staff.peranan === 'plb' ? 'plb' : 'pegawai');
+    setEditPeranan(staff.peranan === 'admin' ? 'admin' : 'pegawai');
     setEditStatus(staff.status);
     setEditPassword('');
     setEditError(null);
@@ -773,7 +773,7 @@ export function PlbDirectoryView({
                 className="w-full rounded border border-slate-300 px-3 py-2 text-sm bg-white"
               >
                 <option value="pegawai">Pegawai</option>
-                <option value="plb">PLB / Urus Setia PSM</option>
+                <option value="admin">Pentadbir Sistem</option>
               </select>
             </div>
             <div>
@@ -1227,7 +1227,7 @@ export function PlbDirectoryView({
                     className="w-full rounded border border-slate-300 px-2.5 py-2 text-sm bg-white"
                   >
                     <option value="pegawai">Pegawai</option>
-                    <option value="plb">PLB / Urus Setia</option>
+                    <option value="admin">Pentadbir Sistem</option>
                   </select>
                 </div>
                 <div>

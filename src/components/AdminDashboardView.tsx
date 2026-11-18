@@ -62,15 +62,13 @@ export function AdminDashboardView({
   const roleCounts = useMemo(() => {
     let aktif = 0;
     let tidakAktif = 0;
-    let plb = 0;
     let pegawai = 0;
     for (const s of staffList) {
       if (s.status === 'aktif') aktif += 1;
       else tidakAktif += 1;
-      if (s.peranan === 'plb') plb += 1;
-      else if (s.peranan === 'pegawai') pegawai += 1;
+      if (s.peranan === 'pegawai') pegawai += 1;
     }
-    return { aktif, tidakAktif, plb, pegawai };
+    return { aktif, tidakAktif, pegawai };
   }, [staffList]);
 
   const staffById = useMemo(
@@ -242,10 +240,10 @@ export function AdminDashboardView({
         <div className="px-5 py-4">
           <div className="text-xs font-medium text-slate-500">Pengagihan Peranan</div>
           <div className="mt-1 font-mono text-2xl font-semibold tabular-nums text-slate-900">
-            {roleCounts.plb} PLB
+            1 Pentadbir
           </div>
           <div className="mt-1 font-mono text-xs tabular-nums text-slate-500">
-            {roleCounts.pegawai} pegawai · 1 admin
+            {roleCounts.pegawai} pegawai berdaftar
           </div>
         </div>
 

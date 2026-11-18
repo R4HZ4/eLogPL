@@ -158,7 +158,6 @@ function createAdminAccount(adminHash: string, now: string): StoredStaffUser {
 
 function createSeedDatabase(): LogbookDatabase {
   const defaultStaffHash = hashPassword('elogpl2026');
-  const defaultPlbHash = hashPassword('plb2026');
   const defaultAdminHash = hashPassword('admin2026');
   const now = new Date().toISOString();
 
@@ -169,7 +168,8 @@ function createSeedDatabase(): LogbookDatabase {
       createAdminAccount(defaultAdminHash, now),
       ...parsed.users.map((u) => ({
         ...u,
-        passwordHash: u.peranan === 'plb' ? defaultPlbHash : defaultStaffHash,
+        peranan: 'pegawai' as UserRole,
+        passwordHash: defaultStaffHash,
       })),
     ];
 
@@ -185,24 +185,24 @@ function createSeedDatabase(): LogbookDatabase {
     users: [
       createAdminAccount(defaultAdminHash, now),
       {
-        id: 'usr-plb-default',
-        noFail: '1222',
-        noKp: '691018-12-5115',
+        id: 'usr-staff-default',
+        noFail: '1001',
+        noKp: '680807-12-5341',
         icValid: true,
-        nama: 'Mazalan Bin Hassin',
-        jawatan: 'PP',
+        nama: 'A. Majalan Bin Awang',
+        jawatan: 'Pembantu Tadbir',
         klasifikasi: 'N',
-        gred: '9',
+        gred: 'N1',
         tempatBertugas: 'Pengurusan Sumber Manusia',
         jabatanInduk: 'Pengurusan Sumber Manusia',
         tarafJawatan: 'Tetap',
-        kategoriPerkhidmatan: 'P & P',
+        kategoriPerkhidmatan: 'Sok II',
         gender: 'L',
-        peranan: 'plb',
+        peranan: 'pegawai',
         bulanBerkhidmat: 12,
         sasaranTahun: 4,
         status: 'aktif',
-        passwordHash: defaultPlbHash,
+        passwordHash: defaultStaffHash,
         createdAt: now,
         updatedAt: now,
       },
@@ -242,6 +242,16 @@ function loadDb(): LogbookDatabase {
   if (!db.users.some((u) => u.peranan === 'admin')) {
     db.users.unshift(createAdminAccount(hashPassword('admin2026'), new Date().toISOString()));
     dirty = true;
+  }
+
+  // Migrate any legacy non-admin privileged roles to standard pegawai
+  for (const u of db.users) {
+    if ((u.peranan as string) !== 'admin' && u.peranan !== 'pegawai') {
+      u.peranan = 'pegawai';
+      u.passwordHash = hashPassword('elogpl2026');
+      u.updatedAt = new Date().toISOString();
+      dirty = true;
+    }
   }
 
   // Reinstate 11-digit No. K/P values by prepending leading '0' to make valid 12-digit ICs
@@ -573,7 +583,7 @@ function requireAuth(
 }
 
 function isPrivilegedRole(role?: UserRole): boolean {
-  return role === 'admin' || role === 'plb';
+  return role === 'admin';
 }
 
 function requirePlb(
@@ -583,7 +593,7 @@ function requirePlb(
 ): void {
   if (!req.auth || !isPrivilegedRole(req.auth.peranan)) {
     res.status(403).json({
-      error: 'Akses terhad kepada Pentadbir Sistem (Admin) atau Pegawai Latihan Bahagian (PLB).',
+      error: 'Akses terhad kepada Pentadbir Sistem (Admin).',
     });
     return;
   }
@@ -639,7 +649,7 @@ async function startServer() {
 
     if (user.status !== 'aktif') {
       res.status(403).json({
-        error: 'Akaun kakitangan ini tidak aktif. Sila hubungi PLB / BPSM.',
+        error: 'Akaun kakitangan ini tidak aktif. Sila hubungi Pentadbir Sistem / Unit Latihan, JPSM.',
       });
       return;
     }
@@ -697,8 +707,6 @@ async function startServer() {
     const peranan: UserRole =
       req.body?.peranan === 'admin' && req.auth?.peranan === 'admin'
         ? 'admin'
-        : req.body?.peranan === 'plb'
-        ? 'plb'
         : 'pegawai';
     const bulanBerkhidmat = Math.max(
       1,
@@ -835,7 +843,7 @@ async function startServer() {
           ? Math.max(1, Math.min(30, Number(req.body.sasaranTahun) || 4))
           : target.sasaranTahun,
       peranan:
-        isPlb && (req.body?.peranan === 'plb' || req.body?.peranan === 'pegawai')
+        isPlb && (req.body?.peranan === 'admin' || req.body?.peranan === 'pegawai')
           ? req.body.peranan
           : target.peranan,
       status:
@@ -927,7 +935,6 @@ async function startServer() {
 
     const db = loadDb();
     const defaultStaffHash = hashPassword('elogpl2026');
-    const defaultPlbHash = hashPassword('plb2026');
 
     if (mode === 'replace') {
       const admins = db.users.filter((u) => u.peranan === 'admin');
@@ -936,9 +943,8 @@ async function startServer() {
         ...admins,
         ...parsed.users.map((u) => ({
           ...u,
-          passwordHash:
-            prevHashById.get(stripNoKp(u.noKp)) ??
-            (u.peranan === 'plb' ? defaultPlbHash : defaultStaffHash),
+          peranan: 'pegawai' as UserRole,
+          passwordHash: prevHashById.get(stripNoKp(u.noKp)) ?? defaultStaffHash,
         })),
       ];
       db.logs = parsed.logs;
@@ -967,7 +973,8 @@ async function startServer() {
       } else {
         const created: StoredStaffUser = {
           ...u,
-          passwordHash: u.peranan === 'plb' ? defaultPlbHash : defaultStaffHash,
+          peranan: 'pegawai',
+          passwordHash: defaultStaffHash,
         };
         db.users.push(created);
         existingByKp.set(key, created);
@@ -1150,7 +1157,7 @@ async function startServer() {
       statusPengesahan: isPlb && req.body?.autoVerify ? 'disahkan' : 'menunggu',
       disahkanOleh:
         isPlb && req.body?.autoVerify
-          ? db.users.find((u) => u.id === req.auth?.userId)?.nama ?? 'PLB'
+          ? db.users.find((u) => u.id === req.auth?.userId)?.nama ?? 'Pentadbir Sistem'
           : undefined,
       tarikhPengesahan:
         isPlb && req.body?.autoVerify ? now.slice(0, 10) : undefined,
@@ -1187,7 +1194,7 @@ async function startServer() {
     if (req.body?.statusPengesahan !== undefined) {
       if (!isPlb) {
         res.status(403).json({
-          error: 'Hanya Pegawai Latihan Bahagian (PLB) atau BPSM boleh mengesahkan log latihan.',
+          error: 'Hanya Pentadbir Sistem boleh mengesahkan log latihan.',
         });
         return;
       }
@@ -1201,8 +1208,8 @@ async function startServer() {
         ...next,
         statusPengesahan: nextStatus,
         disahkanOleh:
-          nextStatus === 'menunggu' ? undefined : verifier?.nama ?? 'Pegawai Latihan Bahagian',
-        jawatanPengesah: nextStatus === 'menunggu' ? undefined : verifier?.jawatan ?? 'PLB',
+          nextStatus === 'menunggu' ? undefined : verifier?.nama ?? 'Pentadbir Sistem',
+        jawatanPengesah: nextStatus === 'menunggu' ? undefined : verifier?.jawatan ?? 'Pentadbir Sistem',
         tarikhPengesahan:
           nextStatus === 'menunggu' ? undefined : new Date().toISOString().slice(0, 10),
         catatanPengesah: req.body?.catatanPengesah
@@ -1211,7 +1218,7 @@ async function startServer() {
       };
     }
 
-    // Allow PLB/Admin to fix missing PL course code or shifted/typo entries
+    // Allow Pentadbir Sistem to fix missing PL course code or shifted/typo entries
     if (isPlb && req.body?.kodKursusPL !== undefined) {
       const code = String(req.body.kodKursusPL).trim().toUpperCase() as PlCourseCode;
       if (!(code in PL_COURSE_CODES)) {
@@ -1231,7 +1238,7 @@ async function startServer() {
 
     if (!isPlb && existing.statusPengesahan === 'disahkan' && req.body?.statusPengesahan === undefined) {
       res.status(400).json({
-        error: 'Rekod yang telah disahkan oleh PLB tidak boleh disunting lagi.',
+        error: 'Rekod yang telah disahkan oleh Pentadbir Sistem tidak boleh disunting lagi.',
       });
       return;
     }

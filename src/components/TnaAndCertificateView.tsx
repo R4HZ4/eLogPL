@@ -64,7 +64,7 @@ export function TnaAndCertificateView({
               Penyata Pengesahan Kehadiran Kursus &amp; Latihan ({tahun})
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Ringkasan rasmi berdasarkan catatan kursus dan perhimpunan yang disahkan oleh BPSM / PLB.
+              Ringkasan rasmi berdasarkan catatan kursus dan perhimpunan yang disahkan oleh Unit Latihan, JPSM.
             </p>
           </div>
 

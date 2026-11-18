@@ -1,6 +1,6 @@
 {
   "name": "eLogPL",
-  "description": "Sistem Buku Log Latihan Digital dan rekod kehadiran kursus kakitangan dengan log masuk No. Kad Pengenalan serta pengesahan Pegawai Latihan Bahagian (PLB).",
+  "description": "Sistem Rekod Latihan Digital dan kehadiran kursus kakitangan dengan log masuk No. Kad Pengenalan serta pengesahan Pentadbir Sistem.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

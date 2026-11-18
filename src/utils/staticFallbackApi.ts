@@ -100,7 +100,8 @@ async function createSeedDatabase(): Promise<StaticDatabase> {
           createAdminUser(now),
           ...parsed.users.map((u) => ({
             ...u,
-            password: u.peranan === 'plb' ? 'plb2026' : 'elogpl2026',
+            peranan: 'pegawai' as UserRole,
+            password: 'elogpl2026',
           })),
         ];
         return reinstateElevenDigitIcs({
@@ -118,28 +119,6 @@ async function createSeedDatabase(): Promise<StaticDatabase> {
   return {
     users: [
       createAdminUser(now),
-      {
-        id: 'usr-plb-default',
-        noFail: '1222',
-        noKp: '691018-12-5115',
-        icValid: true,
-        nama: 'Mazalan Bin Hassin',
-        jawatan: 'PP',
-        klasifikasi: 'N',
-        gred: '9',
-        tempatBertugas: 'Pengurusan Sumber Manusia',
-        jabatanInduk: 'Pengurusan Sumber Manusia',
-        tarafJawatan: 'Tetap',
-        kategoriPerkhidmatan: 'P & P',
-        gender: 'L',
-        peranan: 'plb',
-        bulanBerkhidmat: 12,
-        sasaranTahun: 4,
-        status: 'aktif',
-        password: 'plb2026',
-        createdAt: now,
-        updatedAt: now,
-      },
       {
         id: 'usr-staff-default',
         noFail: '1001',
@@ -213,6 +192,14 @@ async function getStaticDb(): Promise<StaticDatabase> {
           if (!parsed.users.some((u) => u.peranan === 'admin')) {
             parsed.users.unshift(createAdminUser(new Date().toISOString()));
           }
+          for (const u of parsed.users) {
+            if ((u.peranan as string) !== 'admin' && u.peranan !== 'pegawai') {
+              u.peranan = 'pegawai';
+              if (u.password === 'plb2026' || u.password === 'latihan2026') {
+                u.password = 'elogpl2026';
+              }
+            }
+          }
           memoryDb = reinstateElevenDigitIcs(parsed);
           return memoryDb;
         }
@@ -252,7 +239,7 @@ function parseStaticToken(token: string | null): StaticSession | null {
 }
 
 function isPrivilegedRole(role?: UserRole): boolean {
-  return role === 'admin' || role === 'plb';
+  return role === 'admin';
 }
 
 function buildComplianceData(db: StaticDatabase, tahun: number) {
@@ -629,7 +616,7 @@ export async function handleStaticApiRequest<T>(
       );
     }
     if (user.status !== 'aktif') {
-      throw new Error('Akaun kakitangan ini tidak aktif. Sila hubungi PLB / BPSM.');
+      throw new Error('Akaun kakitangan ini tidak aktif. Sila hubungi Pentadbir Sistem / Unit Latihan, JPSM.');
     }
 
     const nextToken = signStaticToken({
@@ -665,7 +652,7 @@ export async function handleStaticApiRequest<T>(
 
   if (pathname === '/api/staff' && method === 'POST') {
     if (!isPrivilegedRole(auth.peranan)) {
-      throw new Error('Akses terhad kepada Pentadbir Sistem (Admin) atau PLB.');
+      throw new Error('Akses terhad kepada Pentadbir Sistem (Admin).');
     }
     const rawNoKp = String(body.noKp ?? '');
     const nama = String(body.nama ?? '').trim();
@@ -691,11 +678,7 @@ export async function handleStaticApiRequest<T>(
     const dept = normalizeJabatanUnit(tempatBertugas);
     const now = new Date().toISOString();
     const peranan: UserRole =
-      body.peranan === 'admin' && auth.peranan === 'admin'
-        ? 'admin'
-        : body.peranan === 'plb'
-        ? 'plb'
-        : 'pegawai';
+      body.peranan === 'admin' && auth.peranan === 'admin' ? 'admin' : 'pegawai';
 
     const created: StaticUser = {
       id: genId('usr'),
@@ -751,7 +734,7 @@ export async function handleStaticApiRequest<T>(
 
   if (pathname === '/api/staff/import-csv' && method === 'POST') {
     if (!isPrivilegedRole(auth.peranan)) {
-      throw new Error('Akses terhad kepada Pentadbir Sistem (Admin) atau PLB.');
+      throw new Error('Akses terhad kepada Pentadbir Sistem (Admin).');
     }
     const csvText = String(body.csvText ?? '');
     const fileName = String(body.fileName ?? 'rekod-kursus-import.csv');
@@ -772,9 +755,8 @@ export async function handleStaticApiRequest<T>(
         ...admins,
         ...parsed.users.map((u) => ({
           ...u,
-          password:
-            prevPwd.get(stripNoKp(u.noKp)) ??
-            (u.peranan === 'plb' ? 'plb2026' : 'elogpl2026'),
+          peranan: 'pegawai' as UserRole,
+          password: prevPwd.get(stripNoKp(u.noKp)) ?? 'elogpl2026',
         })),
       ];
       db.logs = parsed.logs;
@@ -800,7 +782,8 @@ export async function handleStaticApiRequest<T>(
       } else {
         const created: StaticUser = {
           ...u,
-          password: u.peranan === 'plb' ? 'plb2026' : 'elogpl2026',
+          peranan: 'pegawai',
+          password: 'elogpl2026',
         };
         db.users.push(created);
         existingByKp.set(key, created);
@@ -897,7 +880,7 @@ export async function handleStaticApiRequest<T>(
             ? Math.max(1, Math.min(30, Number(body.sasaranTahun) || 4))
             : target.sasaranTahun,
         peranan:
-          isPlb && (body.peranan === 'plb' || body.peranan === 'pegawai')
+          isPlb && (body.peranan === 'admin' || body.peranan === 'pegawai')
             ? body.peranan
             : target.peranan,
         status:
@@ -917,7 +900,7 @@ export async function handleStaticApiRequest<T>(
 
     if (method === 'DELETE') {
       if (!isPrivilegedRole(auth.peranan)) {
-        throw new Error('Akses terhad kepada Pentadbir Sistem (Admin) atau PLB.');
+        throw new Error('Akses terhad kepada Pentadbir Sistem (Admin).');
       }
       const target = db.users[idx];
       if (target.id === auth.userId || target.peranan === 'admin') {
@@ -1053,7 +1036,7 @@ export async function handleStaticApiRequest<T>(
       statusPengesahan: isPlb && body.autoVerify ? 'disahkan' : 'menunggu',
       disahkanOleh:
         isPlb && body.autoVerify
-          ? db.users.find((u) => u.id === auth.userId)?.nama ?? 'PLB'
+          ? db.users.find((u) => u.id === auth.userId)?.nama ?? 'Pentadbir Sistem'
           : undefined,
       tarikhPengesahan: isPlb && body.autoVerify ? now.slice(0, 10) : undefined,
       createdAt: now,
@@ -1079,7 +1062,7 @@ export async function handleStaticApiRequest<T>(
     if (method === 'PATCH') {
       let next: TrainingLogEntry = { ...existing };
       if (body.statusPengesahan !== undefined) {
-        if (!isPlb) throw new Error('Hanya PLB/Admin boleh mengesahkan log latihan.');
+        if (!isPlb) throw new Error('Hanya Pentadbir Sistem boleh mengesahkan log latihan.');
         const nextStatus = body.statusPengesahan as VerificationStatus;
         const verifier = db.users.find((u) => u.id === auth.userId);
         next = {
@@ -1088,9 +1071,9 @@ export async function handleStaticApiRequest<T>(
           disahkanOleh:
             nextStatus === 'menunggu'
               ? undefined
-              : verifier?.nama ?? 'Pegawai Latihan Bahagian',
+              : verifier?.nama ?? 'Pentadbir Sistem',
           jawatanPengesah:
-            nextStatus === 'menunggu' ? undefined : verifier?.jawatan ?? 'PLB',
+            nextStatus === 'menunggu' ? undefined : verifier?.jawatan ?? 'Pentadbir Sistem',
           tarikhPengesahan:
             nextStatus === 'menunggu' ? undefined : new Date().toISOString().slice(0, 10),
           catatanPengesah: body.catatanPengesah

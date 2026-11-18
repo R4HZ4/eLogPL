@@ -46,15 +46,11 @@ type AppView =
 function AuthenticatedWorkspace() {
   const { user, token, logout, apiFetch } = useAuth();
   const isAdmin = user?.peranan === 'admin';
-  const isPrivileged = user?.peranan === 'admin' || user?.peranan === 'plb';
+  const isPrivileged = user?.peranan === 'admin';
 
   const [tahun, setTahun] = useState<number>(2026);
   const [activeView, setActiveView] = useState<AppView>(() =>
-    user?.peranan === 'admin'
-      ? 'admin_dashboard'
-      : user?.peranan === 'plb'
-      ? 'analytics'
-      : 'logbook'
+    user?.peranan === 'admin' ? 'admin_dashboard' : 'logbook'
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logModalOpen, setLogModalOpen] = useState(false);
@@ -81,12 +77,14 @@ function AuthenticatedWorkspace() {
     if (user) {
       setActiveView((prev) => {
         const admin = user.peranan === 'admin';
-        const priv = user.peranan === 'admin' || user.peranan === 'plb';
-        if (!priv && (prev === 'admin_dashboard' || prev === 'analytics' || prev === 'directory' || prev === 'audit')) {
+        if (
+          !admin &&
+          (prev === 'admin_dashboard' ||
+            prev === 'analytics' ||
+            prev === 'directory' ||
+            prev === 'audit')
+        ) {
           return 'logbook';
-        }
-        if (!admin && prev === 'admin_dashboard') {
-          return 'analytics';
         }
         return prev;
       });
@@ -107,7 +105,7 @@ function AuthenticatedWorkspace() {
       setPersonalLogs(myLogsRes.logs);
       setTna(tnaRes.tna);
 
-      if (user.peranan === 'admin' || user.peranan === 'plb') {
+      if (user.peranan === 'admin') {
         const [staffRes, reportRes, analyticsRes, pendingRes] = await Promise.all([
           apiFetch<{ staff: StaffAccount[] }>('/api/staff'),
           apiFetch<{ rows: ComplianceSummaryRow[] }>(
@@ -399,8 +397,6 @@ function AuthenticatedWorkspace() {
           <div className="mt-0.5 text-[11px] text-slate-400">
             {user.peranan === 'admin'
               ? 'Pentadbir Sistem (Admin)'
-              : user.peranan === 'plb'
-              ? 'PLB / PSM'
               : 'Pegawai'}{' '}
             · {user.gred}
             {user.noFail ? ` · #${user.noFail}` : ''}

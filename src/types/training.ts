@@ -1,4 +1,4 @@
-export type UserRole = 'pegawai' | 'plb' | 'admin';
+export type UserRole = 'pegawai' | 'admin';
 
 export type TrainingCategory =
   | 'latihan_bermodul'

@@ -19,7 +19,7 @@ interface MyLogbookViewProps {
 
 const VERIFICATION_LABEL: Record<TrainingLogEntry['statusPengesahan'], string> = {
   disahkan: 'Disahkan',
-  menunggu: 'Menunggu PLB',
+  menunggu: 'Menunggu Pengesahan',
   ditolak: 'Ditolak',
 };
 
@@ -147,7 +147,7 @@ export function MyLogbookView({
 
         <div className="px-5 py-4">
           <div className="text-xs font-medium text-slate-500">
-            Menunggu Pengesahan PLB
+            Menunggu Pengesahan
           </div>
           <div className="mt-1 font-mono text-2xl font-semibold tabular-nums text-amber-700">
             {logs.filter((l) => l.statusPengesahan === 'menunggu').length}
@@ -229,7 +229,7 @@ export function MyLogbookView({
                   <th className="px-4 py-2.5 whitespace-nowrap">Kod / Kategori</th>
                   <th className="px-4 py-2.5">Tempat &amp; Anjuran</th>
                   <th className="px-4 py-2.5 text-right whitespace-nowrap">Tempoh</th>
-                  <th className="px-4 py-2.5 whitespace-nowrap">Pengesahan PLB</th>
+                  <th className="px-4 py-2.5 whitespace-nowrap">Pengesahan</th>
                   <th className="px-4 py-2.5 text-right whitespace-nowrap">Tindakan</th>
                 </tr>
               </thead>

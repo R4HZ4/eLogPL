@@ -384,7 +384,7 @@ export function PlbAuditAndVerifyView({
         <div className="space-y-4">
           {pendingLogs.length === 0 ? (
             <div className="rounded-lg border border-slate-200 bg-white px-6 py-12 text-center text-sm text-slate-600">
-              Tiada rekod latihan baharu yang menunggu pengesahan PLB buat masa ini.
+              Tiada rekod latihan baharu yang menunggu pengesahan buat masa ini.
             </div>
           ) : (
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -396,7 +396,7 @@ export function PlbAuditAndVerifyView({
                       <th className="px-4 py-2.5">Program &amp; Tarikh</th>
                       <th className="px-4 py-2.5">Kod / Kategori</th>
                       <th className="px-4 py-2.5 text-right">Tempoh</th>
-                      <th className="px-4 py-2.5">Tindakan PLB</th>
+                      <th className="px-4 py-2.5">Tindakan Pentadbir</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
@@ -447,7 +447,7 @@ export function PlbAuditAndVerifyView({
                                   [log.id]: e.target.value,
                                 }))
                               }
-                              placeholder="Catatan pengesahan PLB..."
+                              placeholder="Catatan pengesahan..."
                               className="w-full rounded border border-slate-300 px-2.5 py-1 text-xs"
                             />
                             <div className="flex items-center gap-2">

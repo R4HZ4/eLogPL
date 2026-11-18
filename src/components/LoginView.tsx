@@ -44,13 +44,12 @@ const COPY = {
     hidePwd: 'Sembunyikan kata laluan',
     forgotPwd: 'Lupa Kata Laluan?',
     forgotNotice:
-      'Sila hubungi Pentadbir Sistem atau Pegawai Latihan Bahagian (PLB) PSM untuk bantuan tetapan semula kata laluan akaun anda.',
+      'Sila hubungi Pentadbir Sistem atau Unit Latihan, JPSM untuk bantuan tetapan semula kata laluan akaun anda.',
     submitLoading: 'Sedang mengesahkan...',
     submitStaff: 'Log Masuk',
     submitAdmin: 'Log Masuk Pentadbir Sistem',
     quickFillLabel: 'Isi Pantas Akaun Demo',
     demoAdmin: 'Pentadbir Sistem',
-    demoPlb: 'PLB / PSM (Mazalan)',
     demoStaff: 'Pegawai (A. Majalan)',
     footer: '© 2026 eLogPL · Perbadanan Labuan. Hak cipta terpelihara.',
     genericError: 'Berlaku ralat semasa log masuk.',
@@ -83,13 +82,12 @@ const COPY = {
     hidePwd: 'Hide password',
     forgotPwd: 'Forgot Password?',
     forgotNotice:
-      'Please contact the System Administrator or HR Training Liaison Officer (PLB) for password reset assistance.',
+      'Please contact the System Administrator or Training Unit (JPSM) for password reset assistance.',
     submitLoading: 'Verifying...',
     submitStaff: 'Log Masuk / Sign In',
     submitAdmin: 'Sign In as System Admin',
     quickFillLabel: 'Quick-Fill Demo Accounts',
     demoAdmin: 'System Admin',
-    demoPlb: 'PLB / HR (Mazalan)',
     demoStaff: 'Officer (A. Majalan)',
     footer: '© 2026 eLogPL · Perbadanan Labuan. All rights reserved.',
     genericError: 'An error occurred during sign in.',
@@ -403,7 +401,7 @@ export function LoginView() {
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   {t.quickFillLabel}
                 </div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() =>
@@ -419,24 +417,6 @@ export function LoginView() {
                     </div>
                     <div className="font-mono text-[10.5px] text-slate-500">
                       admin2026
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      fillDemoAccount('staff', '691018-12-5115', 'plb2026')
-                    }
-                    className="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-left hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="text-[11px] font-semibold text-slate-900 truncate">
-                      {t.demoPlb}
-                    </div>
-                    <div className="mt-0.5 font-mono text-[11px] tabular-nums text-slate-700">
-                      691018-12-5115
-                    </div>
-                    <div className="font-mono text-[10.5px] text-slate-500">
-                      plb2026
                     </div>
                   </button>
 

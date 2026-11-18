@@ -268,10 +268,6 @@ export function parsePerbadananLabuanCsv(
     const catatan = (row[189] ?? '').trim();
     const tarikhLantikan = (row[190] ?? '').trim();
 
-    const isHrPlb =
-      dept.jabatanInduk === 'Pengurusan Sumber Manusia' ||
-      /pengurusan sumber manusia/i.test(dept.tempatBertugas);
-
     const staffId = `usr-pl-${noFail || r}-${r}`;
 
     const staff: StaffAccount = {
@@ -291,7 +287,7 @@ export function parsePerbadananLabuanCsv(
       gender,
       catatan: catatan || undefined,
       tarikhLantikan: tarikhLantikan || undefined,
-      peranan: isHrPlb ? 'plb' : 'pegawai',
+      peranan: 'pegawai',
       bulanBerkhidmat: 12,
       sasaranTahun: 4,
       status: 'aktif',
@@ -339,7 +335,7 @@ export function parsePerbadananLabuanCsv(
           anomalyFlag: parsedDate.hadTypo ? 'date_typo' : undefined,
           statusPengesahan: 'disahkan',
           disahkanOleh: 'Rekod Rasmi BPSM PL 2026',
-          jawatanPengesah: 'Urus Setia Latihan (PLB)',
+          jawatanPengesah: 'Unit Latihan, JPSM',
           tarikhPengesahan: parsedDate.tarikhTamat,
           createdAt: now,
           updatedAt: now,
@@ -391,7 +387,7 @@ export function parsePerbadananLabuanCsv(
         anomalyFlag,
         statusPengesahan: 'disahkan',
         disahkanOleh: 'Rekod Rasmi BPSM PL 2026',
-        jawatanPengesah: 'Urus Setia Latihan (PLB)',
+        jawatanPengesah: 'Unit Latihan, JPSM',
         tarikhPengesahan: parsedDate.tarikhTamat,
         createdAt: now,
         updatedAt: now,
