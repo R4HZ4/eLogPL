@@ -4,8 +4,6 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  FileSpreadsheet,
-  FileText,
   Info,
   Lock,
   Shield,
@@ -19,17 +17,13 @@ type Language = 'ms' | 'en';
 
 const COPY = {
   ms: {
-    eyebrowLeft: 'PORTAL AKSES LOG LATIHAN',
+    eyebrowLeft: 'PORTAL AKSES SISTEM PENGURUSAN LATIHAN',
     orgTitle: 'PERBADANAN LABUAN',
-    orgDesc:
-      'Akses rasmi sistem pengurusan log latihan, pematuhan 40 jam berkursus, semakan Unit Latihan, JPSM dan rekod latihan Perbadanan Labuan.',
     bullets: [
-      'Gunakan No. K/P rasmi dan pastikan log keluar selepas selesai.',
-      'Aktiviti dan rekod kursus direkod untuk tujuan audit dan pengesahan PLB.',
-      'Data latihan dan pematuhan dikemas kini mengikut proses semasa.',
+      'Peringatan: Pastikan log keluar selepas selesai.',
+      'Setiap pegawai yang telah menghadiri kursus DIKEHENDAKI memaklumkan secara online kehadiran mereka ke setiap jenis kursus tersebut kepada Unit Latihan, Jabatan Pengurusan Sumber Manusia. Anda boleh menghantar makluman kursus yang telah dihadiri melalui Login ke dalam sistem dan membuat Hantar Makluman.',
+      'Semua makluman kursus akan diterima oleh Unit Latihan untuk disahkan. Anda boleh melihat laporan JUMLAH HARI dan JAM bagi setiap jenis kursus yang dihadiri yang DISAHKAN oleh Unit Latihan. Status lain juga boleh dilihat di laporan yang disediakan.',
     ],
-    csvLabel: 'Dataset CSV 2026',
-    pdfLabel: 'Panduan Buku Log (PDF)',
     eyebrowRight: 'LOG MASUK SISTEM',
     welcomeTitle: 'Selamat Datang',
     welcomeSubtitle:
@@ -62,17 +56,13 @@ const COPY = {
     genericError: 'Berlaku ralat semasa log masuk.',
   },
   en: {
-    eyebrowLeft: 'TRAINING LOG ACCESS PORTAL',
+    eyebrowLeft: 'TRAINING MANAGEMENT SYSTEM ACCESS PORTAL',
     orgTitle: 'PERBADANAN LABUAN',
-    orgDesc:
-      'Official access for the training log management system, 40-hour training compliance, Training Unit (JPSM) verification, and Perbadanan Labuan training records.',
     bullets: [
-      'Use your official IC Number and ensure you log out after finishing.',
-      'Training activities and logs are recorded for audit and PLB verification.',
-      'Training and compliance data is updated according to current workflows.',
+      'Reminder: Please ensure you log out after finishing.',
+      'Every officer who has attended a course is REQUIRED to notify their attendance online for each course type to the Training Unit, Human Resource Management Department. You may submit course attendance notifications by logging into the system and selecting Submit Notification.',
+      'All course notifications will be received by the Training Unit for verification. You can view the TOTAL DAYS and HOURS report for each attended course type VERIFIED by the Training Unit, along with other status details in the provided reports.',
     ],
-    csvLabel: '2026 CSV Dataset',
-    pdfLabel: 'Logbook Guide (PDF)',
     eyebrowRight: 'SYSTEM LOGIN',
     welcomeTitle: 'Welcome Back',
     welcomeSubtitle:
@@ -190,7 +180,7 @@ export function LoginView() {
         {/* Main Split Authentication Card */}
         <div className="grid grid-cols-1 overflow-hidden rounded-[28px] bg-white shadow-[0_24px_60px_-15px_rgba(11,39,86,0.18)] ring-1 ring-slate-200/70 lg:grid-cols-12">
           {/* Left Royal/Navy Brand & Security Panel */}
-          <section className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-[#134B8E] via-[#0E3F7D] to-[#082E62] p-8 text-white sm:p-11 lg:col-span-6 lg:p-12">
+          <section className="relative flex flex-col justify-center overflow-hidden bg-gradient-to-br from-[#134B8E] via-[#0E3F7D] to-[#082E62] p-8 text-white sm:p-11 lg:col-span-6 lg:p-12">
             {/* Decorative translucent concentric ring accent matching reference */}
             <div
               aria-hidden="true"
@@ -218,9 +208,6 @@ export function LoginView() {
                 <h1 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[30px]">
                   {t.orgTitle}
                 </h1>
-                <p className="max-w-sm text-[13.5px] leading-relaxed text-blue-100/85">
-                  {t.orgDesc}
-                </p>
               </div>
 
               <div className="border-t border-white/15 pt-7">
@@ -239,29 +226,6 @@ export function LoginView() {
                   </li>
                 </ul>
               </div>
-            </div>
-
-            {/* Quiet Resource Links */}
-            <div className="relative z-10 mt-8 flex flex-wrap items-center gap-4 border-t border-white/10 pt-5 text-xs text-blue-100/80">
-              <a
-                href="/assets/aistudio/REKOD_KURSUS_TAHUN_2026_b9d2805c.csv"
-                download="REKOD_KURSUS_TAHUN_2026.csv"
-                className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
-              >
-                <FileSpreadsheet className="h-3.5 w-3.5" />
-                <span>{t.csvLabel}</span>
-              </a>
-              <span aria-hidden="true" className="text-white/25">
-                ·
-              </span>
-              <a
-                href="/assets/aistudio/Buku_Log_Latihan_2017_79bd92ff.pdf"
-                download="Buku_Log_Latihan_Rujukan.pdf"
-                className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                <span>{t.pdfLabel}</span>
-              </a>
             </div>
           </section>
 

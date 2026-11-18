@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Plus,
   ShieldAlert,
   Users,
   X,
@@ -319,7 +318,7 @@ function AuthenticatedWorkspace() {
     { id: 'analytics', label: 'Analitik Organisasi', icon: BarChart3, plbOnly: true },
     { id: 'directory', label: 'Direktori Kakitangan', icon: Users, plbOnly: true },
     { id: 'audit', label: 'Audit & Pengesahan', icon: ShieldAlert, plbOnly: true },
-    { id: 'logbook', label: 'Buku Log Saya', icon: BookOpen },
+    { id: 'logbook', label: 'Rekod Latihan Saya', icon: BookOpen },
     { id: 'tna', label: 'Pengesahan & TNA', icon: FileSpreadsheet },
     { id: 'guide', label: 'Panduan & Kod Kursus', icon: ClipboardCheck },
   ];
@@ -328,8 +327,8 @@ function AuthenticatedWorkspace() {
     admin_dashboard: 'Dashboard Pentadbir Sistem',
     analytics: 'Analitik Pematuhan Kursus & Latihan',
     directory: 'Direktori & Rekod Latihan Kakitangan',
-    audit: 'Audit Kualiti Data & Semakan PLB',
-    logbook: 'Buku Log Latihan Saya',
+    audit: 'Audit Kualiti Data & Semakan Pengesahan Unit Latihan PL',
+    logbook: 'Rekod Latihan Saya',
     tna: 'Penyata Pengesahan & TNA',
     guide: 'Panduan Kod Kursus & Dokumen Rujukan',
   };
@@ -471,18 +470,6 @@ function AuthenticatedWorkspace() {
                 </option>
               ))}
             </select>
-
-            <button
-              type="button"
-              onClick={() => {
-                setModalTargetStaff(null);
-                setLogModalOpen(true);
-              }}
-              className="inline-flex items-center gap-2 rounded-md bg-[#0B1736] px-4 py-2 text-xs font-medium text-white hover:bg-[#132554] transition-colors whitespace-nowrap shrink-0"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Rekod Latihan</span>
-            </button>
           </div>
         </header>
 

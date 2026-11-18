@@ -65,7 +65,7 @@ export function PlbAuditAndVerifyView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-xl font-bold tracking-tight text-slate-900">
-            Audit Kualiti Data &amp; Semakan Pengesahan PLB
+            Audit Kualiti Data &amp; Semakan Pengesahan Unit Latihan PL
           </h1>
           <p className="mt-0.5 text-xs text-slate-600">
             Mengesan dan membetulkan ralat integriti daripada hamparan CSV asal serta mengesahkan rekod baharu kakitangan.
